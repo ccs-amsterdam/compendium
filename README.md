@@ -1,6 +1,6 @@
 # Research Compendium Template CCS Amsterdam
 
-This repo contains a template for structuring projects used within the [Computational Communication Science Lab Amsterdam](http://ccs.amsterdam/).
+This repo contains a template for structuring projects used within the [Computational Communication Science Lab Amsterdam](http://ccs.amsterdam/). You can just clone or download this repo to get started.
 
 ## Introduction and Rationale
 Computational research often involves a number of data sets, tools/scripts, analyses, and papers. It is beneficial to use a standardized default project structure so it is easier to read each other’s code, and because it stimulates setting up analysis projects in such a way as to make they easily publishable. 
