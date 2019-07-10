@@ -36,8 +36,8 @@ All files/folders in bold are archived publicly.
    + **intermediate** - contains ‘public’ data derived from raw data or downloaded from an external source automatically. Any files here can be recreated using the scripts in src/data-processing provided any needed external sources and private data are available. Files are archived publicly. 
    + tmp - contains temporarily generated data to help speed up or simplify processing, but that does not need to be stored. All files in this folder can be recreated using the scripts in scripts/data that do not depend on external sources or private data. Files are not archived. 
    + *Files directly in data/ are seen as final / published data sets.*
-- **Report**
-   + **Figures** - optional folder for embedded figures
+- **report**
+   + **figures** - optional folder for embedded figures
    + *Files directly in report/ are final / published reports*
 
 
