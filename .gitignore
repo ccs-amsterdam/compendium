@@ -1,1 +1,91 @@
 *~
+*.bak
+\#*\#
+data/raw-private/*
+data/tmp
+
+
+*.swp
+
+*.pid
+
+.idea
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+
+
+nohup.out
+
+
+# geen PyCharm-shit
+.idea/
+
+# no jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+
+# LATEX
+
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.synctex.gz
+*~
+\#*\#
+~$*
+*.bcf
+
+# macos preview
+.DS_Store
