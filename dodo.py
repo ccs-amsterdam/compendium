@@ -172,7 +172,7 @@ def do_encrypt(args):
         subprocess.check_call(cmd)
 
 
-def do_document2(args):
+def document_readme():
     actions = list(get_actions())
     md = "# Data processing scripts"
     md += "\n\nThis folder contains the following scripts:\n\n"
@@ -183,8 +183,7 @@ def do_document2(args):
     print(md)
 
 
-
-def do_document(args):
+def document_process():
     actions = list(get_actions())
     nodes, nodemap, edges = [], {}, []
 
@@ -230,6 +229,13 @@ def do_document(args):
     print(dot)
 
 
+def do_document(args):
+    if args.what == "readme":
+        document_readme()
+    elif args.what == "process":
+        document_process()
+
+
 if __name__ == '__main__':
     import argparse
     import sys
@@ -244,7 +250,8 @@ if __name__ == '__main__':
     encrypt.set_defaults(func=do_encrypt)
 
     encrypt = subparsers.add_parser('document', help='Generate documentation')
-    encrypt.set_defaults(func=do_document2)
+    encrypt.add_argument('what', help='Which documentation to generate', choices=['process', 'readme'])
+    encrypt.set_defaults(func=do_document)
 
     if len(sys.argv) <= 1:
         parser.print_help()
