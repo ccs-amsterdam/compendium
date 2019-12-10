@@ -52,3 +52,13 @@ Optional/recommended top-level files:
 - .travis or other CI-file
 - Dockerfile or other Container install script
 - Requirements.txt or R-equivalent
+
+# Example repository
+
+This repository contains a trivial example setup that showcases some of the features. You can run it with the following command:
+
+```{sh}
+doit passphrase=geheim
+```
+
+This will decrypt the 'private' data and process it with the example scripts (that run upper/lowercase on it). 
