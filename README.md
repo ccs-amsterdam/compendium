@@ -61,4 +61,4 @@ This repository contains a trivial example setup that showcases some of the feat
 doit passphrase=geheim
 ```
 
-This will install python and the doit package (from [requirements.txt](requirements.txt]) , decrypt the 'private' data and process it with the example scripts (that run upper/lowercase on it). 
+This will install python and the doit package (from [requirements.txt](requirements.txt) , decrypt the 'private' data and process it with the example scripts (that run upper/lowercase on it). 
