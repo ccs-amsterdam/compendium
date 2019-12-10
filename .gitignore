@@ -89,3 +89,6 @@ nohup.out
 
 # macos preview
 .DS_Store
+
+.doit.db
+data/raw-private
