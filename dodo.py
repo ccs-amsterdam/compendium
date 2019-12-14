@@ -16,7 +16,7 @@ DATA_PRIVATE = DATA/"raw-private"
 
 SRC = ROOT/"src"
 SRC_PROCESSING = SRC/"data-processing"
-SRC_ANALYSIS = SRC/"data-processing"
+SRC_ANALYSIS = SRC/"analysis"
 
 EXT_SCRIPT = {".py", ".R", ".Rmd", ".sh"}
 
@@ -66,7 +66,7 @@ def parse_files(text: str) -> List[Path]:
 
 def get_actions():
     """Yield all processing and analysis scripts"""
-    for file in get_files(SRC_PROCESSING, suffix=EXT_SCRIPT):
+    for file in get_files(SRC_PROCESSING, suffix=EXT_SCRIPT) + get_files(SRC_ANALYSIS, suffix=EXT_SCRIPT):
         headers = dict(get_headers(file))
         if "CREATES" in headers and "COMMAND" in headers:
             targets = parse_files(headers["CREATES"])
