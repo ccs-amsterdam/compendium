@@ -21,6 +21,12 @@ SRC_ANALYSIS = SRC/"analysis"
 EXT_SCRIPT = {".py", ".R", ".Rmd", ".sh"}
 
 
+def pipe(command, input: bytes, **kargs) -> bytes:
+    proc = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, **kargs)
+    out, _err = proc.communicate(input)
+    return out
+
+
 def contained_in(parent: Path, descendant: Path) -> bool:
     if parent.is_absolute():
         descendant = descendant.absolute()
@@ -183,7 +189,7 @@ def do_encrypt(args):
         subprocess.check_call(cmd)
 
 
-def document_readme():
+def document_readme() -> str:
     actions = list(get_actions())
     md = "# Data processing scripts"
     md += "\n\nThis folder contains the following scripts:\n\n"
@@ -191,10 +197,10 @@ def document_readme():
         inputs =  ",".join(f"[{f.name}]({f})" for f in action.inputs)
         targets = ",".join(f"[{f.name}]({f})" for f in action.targets)
         md += f"- [{action.file.name}](action.file): [{inputs} -> {targets}]  \n  {action.headers.get('DESCRIPTION')}  \n  \n"
-    print(md)
+    return md
 
 
-def document_process():
+def document_process() -> bytes:
     actions = list(get_actions())
     nodes, nodemap, edges = [], {}, []
 
@@ -237,14 +243,28 @@ def document_process():
     nodes = "\n".join(nodes)
     edges = "\n".join(edges)
     dot = f'digraph G {{graph [rankdir="LR"]; \n{nodes}\n\n{edges}\n}}\n'
-    print(dot)
+    return pipe(["dot", "-T", "png"], dot.encode("utf-8"))
 
 
 def do_document(args):
+    filename = args.filename or {"readme": "README.md", "process": "process.png"}[args.what]
+    file = Path.cwd()/filename
+    if file.exists() and not args.overwrite:
+        answer = input(f"File {file} exists, overwrite? [y/N] ")
+        answer = answer.lower()[:1]
+        if answer == "n":
+            return
+        elif answer not in ("", "y"):
+            print("Could not understand answer, sorry")
+            return
     if args.what == "readme":
-        document_readme()
+        text = document_readme()
+        with file.open(mode="w") as f:
+            f.write(text)
     elif args.what == "process":
-        document_process()
+        bytes = document_process()
+        with file.open(mode="wb") as f:
+            f.write(bytes)
 
 
 if __name__ == '__main__':
@@ -262,6 +282,9 @@ if __name__ == '__main__':
 
     encrypt = subparsers.add_parser('document', help='Generate documentation')
     encrypt.add_argument('what', help='Which documentation to generate', choices=['process', 'readme'])
+    encrypt.add_argument('--filename', '-f', help='Output file name')
+    encrypt.add_argument('--overwrite', '-o', help='Overwrite files', action='store_true')
+
     encrypt.set_defaults(func=do_document)
 
     if len(sys.argv) <= 1:
