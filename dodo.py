@@ -86,6 +86,13 @@ def get_actions():
             yield Action(file, action, targets, inputs, headers)
 
 
+def rematchgroup(pattern: str, string: str, group: int=1, **kargs) -> str:
+    m = re.match(pattern, string)
+    if not m:
+        raise Exception(f"Pattern {pattern!r} did not match string {string!r}")
+    return m.group(1)
+
+
 def task_install():
     """Install python/R dependencies as needed"""
     packrat = Path("packrat/packrat.lock")
@@ -98,6 +105,10 @@ def task_install():
     requirements = Path("requirements.txt")
     if requirements.is_file():
         lib = Path.cwd()/"src"/"lib"
+        # Find out env python version
+        pyverstr = subprocess.check_output(["python3", "--version"]).decode("utf-8")
+        pyver = rematchgroup(r"Python (\d+\.\d+)", pyverstr)
+        pathfile = Path.cwd()/"env"/"lib"/f"python{pyver}"/"site-packages"/"compendium_extra.pth"
         yield {
             'name': f"Install python dependencies in virtual environment env from {requirements}",
             'file_dep': [requirements],
@@ -105,7 +116,7 @@ def task_install():
             'actions': ["python3 -m venv env",
                         "env/bin/pip install -U pip wheel",
                         f"env/bin/pip install -r {requirements}",
-                        f'export LIB=`ls env/lib`; echo "{lib}" > "env/lib/$LIB/site-packages/compendium_extra.pth"'],
+                        f'export LIB=`ls env/lib`; echo "{lib}" > "{pathfile}"'],
             'verbosity': 2
         }
 
