@@ -1,3 +1,11 @@
+"""
+Doit file for data compendium.
+
+If you are a user of this compendium, run `doit` to generate files and results rather than running this script.
+
+If you are developing this compendium, you can use this script to generate documentation or encrypt private files.
+"""
+
 import subprocess
 import re
 from collections import namedtuple
@@ -270,8 +278,7 @@ def do_document(args):
 if __name__ == '__main__':
     import argparse
     import sys
-    
-    parser = argparse.ArgumentParser(description = "Doit file for data compendium. Run `doit` to generate files and results rather than running this script. As author, you can use this script to generate documentation or encrypt private files. ")
+    parser = argparse.ArgumentParser(description=__doc__)
 
     subparsers = parser.add_subparsers(help='Action to perform')
 
