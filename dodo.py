@@ -5,10 +5,10 @@ If you are a user of this compendium, run `doit` to generate files and results r
 
 If you are developing this compendium, you can use this script to generate documentation or encrypt private files.
 """
-
+import os
 import subprocess
 import re
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 from pathlib import Path
 import logging
 from typing import Iterable, List, Tuple, Optional, NamedTuple, Dict
@@ -21,6 +21,7 @@ ROOT = Path.cwd()
 DATA = ROOT/"data"
 DATA_ENCRYPTED = DATA/"raw-private-encrypted"
 DATA_PRIVATE = DATA/"raw-private"
+DATA_RAW = DATA/"raw"
 
 SRC = ROOT/"src"
 SRC_PROCESSING = SRC/"data-processing"
@@ -38,7 +39,7 @@ def pipe(command, input: bytes, **kargs) -> bytes:
 def contained_in(parent: Path, descendant: Path) -> bool:
     if parent.is_absolute():
         descendant = descendant.absolute()
-    return str(descendant.absolute()).startswith(str(parent))
+    return str(descendant.absolute()).startswith(f"{parent}{os.path.sep}")
 
 
 class Action(NamedTuple):
@@ -275,6 +276,78 @@ def do_document(args):
             f.write(bytes)
 
 
+def isCyclicUtil(self, v, visited, recStack):
+    # Mark current node as visited and
+    # adds to recursion stack
+    visited[v] = True
+    recStack[v] = True
+
+    # Recur for all neighbours
+    # if any neighbour is visited and in
+    # recStack then graph is cyclic
+    for neighbour in self.graph[v]:
+        if visited[neighbour] == False:
+            if self.isCyclicUtil(neighbour, visited, recStack) == True:
+                return True
+        elif recStack[neighbour] == True:
+            return True
+
+    # The node needs to be poped from
+    # recursion stack before function ends
+    recStack[v] = False
+    return False
+
+    # Returns true if graph is cyclic else false
+
+
+def get_cycles(graph):
+    def cycles_node(graph, node, visited=None):
+        # Can I find a cycle in the depth-first graph starting from this node?
+        if visited is None:
+            visited = set()
+        for neighbour in graph.get(node, []):
+            #print(f"{node} -> {neighbour} (visited: {visited})")
+            if neighbour in visited:
+                yield neighbour
+            else:
+                visited.add(neighbour)
+                yield from cycles_node(graph, neighbour, visited)
+
+    # for any node, can you find a cycle?
+    for n in graph:
+        yield from cycles_node(graph, n)
+
+
+def do_check(args):
+    """
+    Run sanity checks on the package
+    """
+    logging.info("Checking consistency of dependency graph")
+    inputs, outputs, graph = set(), set(), defaultdict(set)
+    for action in get_actions():
+        inputs |= set(action.inputs)
+        outputs |= set(action.targets)
+        for output in action.targets:
+            for input in action.inputs:
+                graph[input].add(output)
+    errors = []
+    # check: all inputs need to be either in raw and exist, in private_raw, or in outputs
+    for input in inputs - outputs:
+        if contained_in(DATA_RAW, input):
+            errors.append(f"Input file {input} does not exist")
+        elif not contained_in(DATA_PRIVATE, input):
+            errors.append(f"Intermediate file {input} is not produced by any script")
+    # check that graph does not contain any cycles
+    cycles = set(get_cycles(graph))
+    for cycle in cycles:
+        errors.append(f"Cyclical dependency for file {cycle}")
+    if errors:
+        print("Package checking resulted in one or more errors:", file=sys.stderr)
+        for error in errors:
+            print(f"- {error}", file=sys.stderr)
+        sys.exit(1)
+
+
 if __name__ == '__main__':
     import argparse
     import sys
@@ -287,12 +360,14 @@ if __name__ == '__main__':
     encrypt.add_argument('files', nargs="*", help='Files to encrypt (if blank, encrypt all private files)')
     encrypt.set_defaults(func=do_encrypt)
 
-    encrypt = subparsers.add_parser('document', help='Generate documentation')
-    encrypt.add_argument('what', help='Which documentation to generate', choices=['process', 'readme'])
-    encrypt.add_argument('--filename', '-f', help='Output file name')
-    encrypt.add_argument('--overwrite', '-o', help='Overwrite files', action='store_true')
+    document = subparsers.add_parser('document', help='Generate documentation')
+    document.add_argument('what', help='Which documentation to generate', choices=['process', 'readme'])
+    document.add_argument('--filename', '-f', help='Output file name')
+    document.add_argument('--overwrite', '-o', help='Overwrite files', action='store_true')
+    document.set_defaults(func=do_document)
 
-    encrypt.set_defaults(func=do_document)
+    check = subparsers.add_parser('check', help='Check consistency and run unit tests')
+    check.set_defaults(func=do_check)
 
     if len(sys.argv) <= 1:
         parser.print_help()
