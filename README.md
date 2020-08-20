@@ -63,3 +63,15 @@ doit passphrase=geheim
 ```
 
 This will install python and the doit package (from [requirements.txt](requirements.txt) , decrypt the 'private' data and process it with the example scripts (that run upper/lowercase on it). 
+
+# R-related topics
+
+# here
+
+The root level directory contains a hidden file `.here`. Using the R package [here](https://cran.r-project.org/web/packages/here/index.html), this file makes working with the compendium easier (especially during the development phase). You can refer to any file within the compendium directory structure with `here::here`, even when your current working directory not at the root level.
+
+For example, you can read a csv file located in `data/raw/mydata.csv` using
+
+```r
+mycsv <- rio::import(here::here("data/raw/mydata.csv"))
+```
